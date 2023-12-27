@@ -6,3 +6,6 @@
 //
 
 import Foundation
+import CoreData
+
+public class PostEntity: NSManagedObject {}

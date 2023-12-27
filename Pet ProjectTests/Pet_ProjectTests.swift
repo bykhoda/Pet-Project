@@ -10,27 +10,47 @@ import XCTest
 
 final class Pet_ProjectTests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    private var viewModel: PostViewModel!
+        private let lastId: Int = 2207259
+        private let lastSortingValues: Double = 9787.2163383951
+        
+        override func setUpWithError() throws {
+            try super.setUpWithError()
+            viewModel = PostViewModel()
         }
-    }
+        
+        override func tearDownWithError() throws {
+            viewModel = nil
+            try super.tearDownWithError()
+        }
+        
+        func testFetchInitialPosts() throws {
+            let expectation = XCTestExpectation(description: "Fetch initial posts")
+            viewModel.fetchPosts(completion: {
+                print("Fetching is completed")
+            })
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                XCTAssertFalse(self.viewModel.posts.isEmpty, "Posts should be fetched")
+                expectation.fulfill()
+            }
+            
+            wait(for: [expectation], timeout: 10)
+        }
+        
+        func testFetchNextPage() {
+            let expectation = XCTestExpectation(description: "Fetch next page posts")
+            
+            viewModel.fetchNextPage(lastId: lastId, lastSortingValues: lastSortingValues, completion: {
+                print("Test has completed")
+            })
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                XCTAssertGreaterThan(self.viewModel.posts.count, 0, "Posts array should contain more than zero posts after fetching next page")
+                expectation.fulfill()
+            }
+            
+            wait(for: [expectation], timeout: 10)
+        }
 
-}
+    }
